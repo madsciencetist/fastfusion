@@ -17,6 +17,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+#include <QGLViewer/manipulatedFrame.h>
 //#define PREPROCESS_IMAGES
 
 //#define DEBUG_NO_MESHES

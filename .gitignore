@@ -1,0 +1,12 @@
+#Build
+build/
+#Swap files
+*~
+*.swp
+*.swo
+#Binaries
+bin/
+#Lib
+lib/
+#Others
+.qglviewer.xml

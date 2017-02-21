@@ -29,8 +29,8 @@ else()
 endif()
 
 #CMake Flags
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -frounding-math -fopenmp")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -frounding-math -fopenmp -fPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp -fPIC")
 
 #AVX2 COMPILING SUPPORT 
 execute_process(COMMAND cat /proc/cpuinfo OUTPUT_VARIABLE CPU_INFO)

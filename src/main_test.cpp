@@ -241,7 +241,12 @@ int main(int argc, char *argv[])
                stream >> junkstamp;
                stream >> depthname;
                if(temp!=""){
-                  poses_from_assfile.push_back(std::pair<Eigen::Matrix3d,Eigen::Vector3d>(Eigen::Quaterniond(q4,q1,q2,q3).toRotationMatrix(),Eigen::Vector3d(translation1,translation2,translation3)));
+                  Eigen::Matrix<double, 3, 3> rotEigen;
+                  Eigen::Quaterniond quatEigen(q4,q1,q2,q3);
+                  Eigen::Vector3d transEigen(translation1,translation2,translation3);
+                  rotEigen = quatEigen.toRotationMatrix();
+                  //poses_from_assfile.push_back(std::pair<Eigen::Matrix3d,Eigen::Vector3d>(Eigen::Quaterniond(q4,q1,q2,q3).toRotationMatrix(),Eigen::Vector3d(translation1,translation2,translation3)));
+                  poses_from_assfile.push_back(std::pair<Eigen::Matrix3d,Eigen::Vector3d>(rotEigen,transEigen));
                   depthNamesLast.push_back(depthname);
                   if(useColor){
                      stream >> junkstamp; stream >> rgbname; rgbNamesLast.push_back(rgbname);
@@ -254,7 +259,7 @@ int main(int argc, char *argv[])
 
          for(unsigned int i=assfilestartindex;i<poses_from_assfile.size();i++){
             trajectory.push_back(kinectPoseFromEigen(poses_from_assfile[i],fx,fy,cx,cy));
-            trajectory.back().setExtrinsic(startpos.getExtrinsic()*trajectory.back().getExtrinsic());
+            //trajectory.back().setExtrinsic(startpos.getExtrinsic()*trajectory.back().getExtrinsic());
             depthNamesLast[i] = prefix + depthNamesLast[i];
             if(useColor) rgbNamesLast[i] = prefix + rgbNamesLast[i];
          }

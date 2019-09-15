@@ -848,9 +848,9 @@ void imageReadingWrapper(
 	for (unsigned int i = startFrame; *readingActive && i < endFrame; i++)
 	{
 		cv::Mat *depthPointer = new cv::Mat();
-		*depthPointer = cv::imread(depthNames[i], -1);
+		*depthPointer = cv::imread(depthNames[i], -1); // unchanged
 		cv::Mat *rgbPointer = new cv::Mat();
-		*rgbPointer = cv::imread(rgbNames[i]);
+		*rgbPointer = cv::imread(rgbNames[i]); // color
 
 		depthImageBuffer[i] = depthPointer;
 		rgbImageBuffer[i] = rgbPointer;
@@ -943,7 +943,10 @@ void fusionWrapper(
 					while (!depthImageBuffer[currentFrame] ||
 						   !rgbImageBuffer[currentFrame])
 //						fprintf(stderr," W:%li",currentFrame)
-						;
+					{
+						boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+					}
+
 					fusion->addMap(*((cv::Mat *)depthImageBuffer[currentFrame]), pLast[currentFrame],
 								   *((cv::Mat *)rgbImageBuffer[currentFrame]), 1.0f / imageDepthScale, maxCamDistance);
 //					fprintf(stderr,"\nDeleting Depth Image %li",currentFrame);
@@ -998,7 +1001,9 @@ void fusionWrapper(
 				{
 					while (!depthImageBuffer[currentFrame] ||
 						   !rgbImageBuffer[currentFrame])
-						;
+					{
+						boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+					}
 
 					while (currentFrame < lastImage)
 					{

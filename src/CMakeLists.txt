@@ -37,23 +37,42 @@ endif()
 # opencv_core opencv_imgproc opencv_highgui opencv_features2d opencv_calib3d
 # )
 
+find_package(catkin COMPONENTS
+    rosbag
+    cv_bridge
+    depth_image_proc
+    eigen_conversions
+    image_geometry
+    message_filters
+    pcl_ros
+    sensor_msgs
+    tf
+    tf2_ros
+    tf2_msgs
+)
+include_directories(${catkin_INCLUDE_DIRS})
 
 FIND_PACKAGE(Qt4 REQUIRED)
 QT4_WRAP_CPP(onlinefusion_HEADERS_MOC onlinefusionviewer.hpp)
 
 add_executable(onlinefusion
-onlinefusionviewer_main.cpp
-onlinefusionviewer.cpp
-${onlinefusion_HEADERS_MOC}
+    rosbag_loader.cpp
+    onlinefusionviewer_main.cpp
+    onlinefusionviewer.cpp
+    depth_registration.h
+    pointcloud_processing.h
+    pointcloud_processing.cpp
+    ${onlinefusion_HEADERS_MOC}
 )
 target_link_libraries(onlinefusion
-geometryfusion_mipmap_cpu geometryfusion_aos
-camerautils
-auxiliary
-${OpenCV_LIBS}
-${QGLVIEWER}
-QtCore QtGui QtOpenGL
-GL GLU glut GLEW
-boost_thread
-boost_system
+    geometryfusion_mipmap_cpu geometryfusion_aos
+    camerautils
+    auxiliary
+    ${OpenCV_LIBS}
+    ${QGLVIEWER}
+    QtCore QtGui QtOpenGL
+    GL GLU glut GLEW
+    boost_thread
+    boost_system
+    ${catkin_LIBRARIES}
 )

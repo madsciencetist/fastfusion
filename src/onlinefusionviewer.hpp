@@ -15,6 +15,16 @@
 #include <fusion/mesh.hpp>
 #include <QtCore/QTimer>
 
+typedef struct FusionParameter_
+{
+	FusionMipMapCPU *fusion;
+	float imageDepthScale;
+	float maxCamDistance;
+	bool threadImageReading;
+	size_t stopFrame;
+	FusionParameter_(FusionMipMapCPU *fusion_p, float imageDepthScale_p, float maxCamDistance_p, bool threadImageReading_p, size_t stopFrame_p);
+} FusionParameter;
+
 class OnlineFusionViewerManipulated : public QGLViewer
 {
 	Q_OBJECT
@@ -25,6 +35,7 @@ public:
   std::vector<std::vector<CameraInfo> > _poses;
   std::vector<std::vector<std::string> > _depthNames;
   std::vector<std::vector<std::string> > _rgbNames;
+  std::vector<std::string> _bags;
 //  std::vector<Mesh> _meshes;
   MeshSeparate *_currentMeshForSave;
   MeshInterleaved *_currentMeshInterleaved;

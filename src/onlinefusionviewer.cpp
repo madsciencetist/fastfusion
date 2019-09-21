@@ -6,6 +6,7 @@
  */
 #include <GL/glew.h>
 #include "onlinefusionviewer.hpp"
+#include "rosbag_loader.h"
 #include <QGLViewer/manipulatedFrame.h>
 #include <math.h>
 #include <QMenu>
@@ -819,16 +820,10 @@ void OnlineFusionViewerManipulated::keyPressEvent(QKeyEvent *e)
 	}
 }
 
-typedef struct FusionParameter_
+FusionParameter_::FusionParameter_(FusionMipMapCPU *fusion_p, float imageDepthScale_p, float maxCamDistance_p, bool threadImageReading_p, size_t stopFrame_p)
+	: fusion(fusion_p), imageDepthScale(imageDepthScale_p), maxCamDistance(maxCamDistance_p), threadImageReading(threadImageReading_p), stopFrame(stopFrame_p)
 {
-	FusionMipMapCPU *fusion;
-	float imageDepthScale;
-	float maxCamDistance;
-	bool threadImageReading;
-	size_t stopFrame;
-	FusionParameter_(FusionMipMapCPU *fusion_p, float imageDepthScale_p, float maxCamDistance_p, bool threadImageReading_p, size_t stopFrame_p)
-		: fusion(fusion_p), imageDepthScale(imageDepthScale_p), maxCamDistance(maxCamDistance_p), threadImageReading(threadImageReading_p), stopFrame(stopFrame_p) {}
-} FusionParameter;
+}
 
 void imageReadingWrapper(
 	std::vector<std::string> depthNames,
@@ -1075,9 +1070,14 @@ void OnlineFusionViewerManipulated::updateSlot()
 		}
 		if (!_fusionThread)
 		{
-			_fusionThread = new boost::thread(fusionWrapper, _depthNames, _rgbNames, _poses,
-											  FusionParameter(_fusion, _imageDepthScale, _maxCamDistance, _threadImageReading, _nextStopFrame),
-											  &_currentFrame, &_currentTrajectory, &_newMesh, &_fusionActive, &_fusionAlive);
+			// _fusionThread = new boost::thread(fusionWrapper, _depthNames, _rgbNames, _poses,
+			// 								  FusionParameter(_fusion, _imageDepthScale, _maxCamDistance, _threadImageReading, _nextStopFrame),
+			// 								  &_currentFrame, &_currentTrajectory, &_newMesh, &_fusionActive, &_fusionAlive);
+
+			_fusionThread = new boost::thread(loadBag,
+												_bags[_currentTrajectory],
+												FusionParameter(_fusion, _imageDepthScale, _maxCamDistance, _threadImageReading, _nextStopFrame),
+												&_newMesh);
 		}
 
 		if (_newMesh)

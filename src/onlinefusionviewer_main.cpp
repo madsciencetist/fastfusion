@@ -148,7 +148,6 @@ int main(int argc, char *argv[])
 	std::string meshname = "";
 	bool noViewer = true;
 	bool bufferImages = false;
-	bool useColor = true;
 	bool volumeColor = true;
 
 	bool useLoopClosures = false;
@@ -235,35 +234,6 @@ int main(int argc, char *argv[])
 	imageDepthScale = imageDepthScaleArg.getValue();
 	intrinsics = intrinsicsArg.getValue();
 
-	float fx = 525.0f;
-	float fy = 525.0f;
-	float cx = 319.5f;
-	float cy = 239.5f;
-
-	if (intrinsics != "")
-	{
-		fprintf(stderr, "\nReading intrinsic camera parameters from %s", intrinsics.c_str());
-		std::fstream intrinsicsfile;
-		intrinsicsfile.open(intrinsics.c_str(), std::ios::in);
-		if (!intrinsicsfile.is_open())
-		{
-			fprintf(stderr, "\nERROR: Could not open File %s for reading!", intrinsics.c_str());
-		}
-		else
-		{
-			float temp;
-			fx = fy = cx = cy = -1.0f;
-			intrinsicsfile >> fx;
-			intrinsicsfile >> temp;
-			intrinsicsfile >> cx;
-			intrinsicsfile >> temp;
-			intrinsicsfile >> fy;
-			intrinsicsfile >> cy;
-			intrinsicsfile.close();
-			fprintf(stderr, "\nCamera Intrinsics from File: %f %f %f %f", fx, fy, cx, cy);
-		}
-	}
-
 	if (threadMeshing)
 		fprintf(stderr, "\nMeshing will run in a separate Thread");
 	else
@@ -295,89 +265,7 @@ int main(int argc, char *argv[])
 //	std::vector<Sophus::SE3> posesSophus;
 	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d> > poses_from_assfile;
 	std::vector<std::vector<std::string> > depthNames;
-	std::vector<std::vector<std::string> > rgbNames;
-	std::vector<std::vector<CameraInfo> > poses;
-
-	if (!useLoopClosures)
-	{
-		fprintf(stderr, "\nBuilding a single Trajectory...");
-		poses.push_back(std::vector<CameraInfo>());
-		depthNames.push_back(std::vector<std::string>());
-		rgbNames.push_back(std::vector<std::string>());
-		std::vector<CameraInfo> &trajectory = poses.back();
-		std::vector<std::string> &depthNamesLast = depthNames.back();
-		std::vector<std::string> &rgbNamesLast = rgbNames.back();
-		unsigned int assfilestartindex = 0;
-		for (unsigned int f = 0; f < associationfilenames.size(); f++)
-		{
-			std::string prefix = prefices[f];
-			std::fstream associationfile;
-			float junkstamp;
-			std::string depthname;
-			std::string rgbname;
-			float q1, q2, q3, q4, translation1, translation2, translation3;
-			associationfile.open(associationfilenames[f].c_str(), std::ios::in);
-			if (!associationfile.is_open())
-			{
-				fprintf(stderr, "\nERROR: Could not open File %s", associationfilenames[f].c_str());
-			}
-			else
-			{
-				fprintf(stderr, "\nReading Association File");
-				while (!associationfile.eof())
-				{
-					std::string temp("");
-					getline(associationfile, temp);
-					std::stringstream stream(temp);
-					stream >> junkstamp;
-					stream >> translation1;
-					stream >> translation2;
-					stream >> translation3;
-					stream >> q1;
-					stream >> q2;
-					stream >> q3;
-					stream >> q4;
-					stream >> junkstamp;
-					stream >> depthname;
-					if (temp != "")
-					{
-//						posesSophus.push_back(Sophus::SE3(Eigen::Quaterniond(q4,q1,q2,q3),Eigen::Vector3d(translation1,translation2,translation3)));
-						poses_from_assfile.push_back(std::pair<Eigen::Matrix3d, Eigen::Vector3d>(Eigen::Quaterniond(q4, q1, q2, q3).toRotationMatrix(), Eigen::Vector3d(translation1, translation2, translation3)));
-						depthNamesLast.push_back(depthname);
-						if (useColor)
-						{
-							stream >> junkstamp;
-							stream >> rgbname;
-							rgbNamesLast.push_back(rgbname);
-						}
-					}
-				}
-				fprintf(stderr, "\nRead %i Poses from Association File Nr %i : %s .",
-						(int)depthNamesLast.size() - assfilestartindex, f, associationfilenames[f].c_str());
-			}
-
-			for (unsigned int i = assfilestartindex; i < poses_from_assfile.size(); i++)
-			{
-//				trajectory.push_back(kinectPoseFromSophus(posesSophus[i]));
-//				trajectory.push_back(kinectPoseFromSophus(posesSophus[i],fx,fy,cx,cy));
-				trajectory.push_back(kinectPoseFromEigen(poses_from_assfile[i], fx, fy, cx, cy));
-				trajectory.back().setExtrinsic(startpos.getExtrinsic() * trajectory.back().getExtrinsic());
-				depthNamesLast[i] = prefix + depthNamesLast[i];
-				if (useColor)
-					rgbNamesLast[i] = prefix + rgbNamesLast[i];
-			}
-			startpos = trajectory.back();
-			assfilestartindex = depthNamesLast.size();
-//			posesSophus.clear();
-			poses_from_assfile.clear();
-		}
-	}
-
-	if (!useLoopClosures)
-	{
-		fprintf(stderr, "\nRead %i Poses und Depth Images and %i RGB Images from %i Association Files",
-				(int)depthNames.size(), (int)rgbNames.size(), (int)associationfilenames.size());
-	}
+	
 
 	if (startimage >= depthNames.front().size())
 		startimage = depthNames.front().size() - 1;
@@ -404,9 +292,7 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "\nSetting Viewer Parameters");
 	viewer._fusion = fusion;
 	viewer.setWindowTitle("Fusion Volume");
-	viewer._poses = poses;
 	viewer._depthNames = depthNames;
-	viewer._rgbNames = rgbNames;
 	viewer._threadFusion = threadFusion;
 	viewer._threadImageReading = threadImageReading;
 	viewer.show();

@@ -32,7 +32,7 @@ public:
 	OnlineFusionViewerManipulated(bool createMeshList = true);
 	~OnlineFusionViewerManipulated();
   std::vector<float> _boundingBox;
-  std::vector<std::vector<CameraInfo> > _poses;
+  //std::vector<std::vector<CameraInfo> > _poses;
   std::vector<std::vector<std::string> > _depthNames;
   std::vector<std::vector<std::string> > _rgbNames;
   std::vector<std::string> _bags;

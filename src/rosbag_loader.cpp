@@ -96,7 +96,11 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
 }
 
 // Load bag
-void loadBag(const std::string &filename, FusionParameter par, volatile bool *newMesh)
+void loadBag(const std::string &filename,
+            FusionParameter par,
+            volatile bool *newMesh,
+            volatile bool *fusionActive,
+            volatile bool *fusionAlive)
 {
     // TODO: make CLI args
     std::string rgb_ns = "eo_camera/forward";
@@ -119,6 +123,9 @@ void loadBag(const std::string &filename, FusionParameter par, volatile bool *ne
     rosbag::View static_tf_view(bag, rosbag::TopicQuery(topics));
     BOOST_FOREACH (rosbag::MessageInstance const m, static_tf_view)
     {
+        if (*fusionAlive == false)
+            return;
+
         tf2_msgs::TFMessage::ConstPtr tf_msg = m.instantiate<tf2_msgs::TFMessage>();
         if (tf_msg != NULL)
         {
@@ -160,6 +167,12 @@ void loadBag(const std::string &filename, FusionParameter par, volatile bool *ne
 
     BOOST_FOREACH (rosbag::MessageInstance const m, view)
     {
+        if (*fusionAlive == false)
+            return;
+
+        while (*fusionActive == false)
+            boost::this_thread::sleep(boost::posix_time::milliseconds(10));
+
         // RGB image (assume compressed)
         if (m.getTopic() == rgb_topic)
         {

@@ -1,4 +1,8 @@
 #pragma once
 #include "onlinefusionviewer.hpp"
 
-void loadBag(const std::string &filename, FusionParameter par, volatile bool *newMesh);
+void loadBag(   const std::string &filename,
+                FusionParameter par,
+                volatile bool *newMesh,
+                volatile bool *fusionActive,
+                volatile bool *fusionAlive);

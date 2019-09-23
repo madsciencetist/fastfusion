@@ -59,6 +59,7 @@ add_executable(onlinefusion
     rosbag_loader.cpp
     onlinefusionviewer_main.cpp
     onlinefusionviewer.cpp
+    depth_registration.cpp
     depth_registration.h
     pointcloud_processing.h
     pointcloud_processing.cpp

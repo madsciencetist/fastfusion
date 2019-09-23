@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
 	float scale = DEFAULT_SCALE;
 	float threshold = DEFAULT_SCALE;
 
-	float imageDepthScale = DEPTHSCALE;
+  float imageDepthScale = 1000; // DEPTHSCALE;
 
 	bool threadMeshing = true;
 	bool threadFusion = true;

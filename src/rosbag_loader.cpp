@@ -12,6 +12,7 @@
 #include <sensor_msgs/CompressedImage.h>
 #include <sensor_msgs/CameraInfo.h>
 #include <cv_bridge/cv_bridge.h>
+#include <eigen_conversions/eigen_msg.h>
 #include <tf2_ros/buffer.h>
 #include <tf/tf.h>
 #include <tf2_msgs/TFMessage.h>
@@ -65,6 +66,7 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
     sensor_msgs::ImagePtr registered_depth = depth_image_proc::imageCb(depth_msg,
                                                                        depth_camera_info,
                                                                        rgb_camera_info,
+                                                                       sensor_msgs::image_encodings::TYPE_16UC1, // processAsPointCloud and addMap require
                                                                        fixed_frame,
                                                                        *tf_buffer);
 
@@ -159,6 +161,7 @@ void loadBag(const std::string &filename,
     message_filters::PassThrough<geometry_msgs::TransformStamped> tf_is_ready_sub;
 
     // Synchronize RGB, depth & camera_infos
+    ros::Time::init();
     typedef message_filters::sync_policies::ApproximateTime<RgbMsgT,
                                                             DepthMsgT,
                                                             sensor_msgs::CameraInfo,

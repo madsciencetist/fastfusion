@@ -84,11 +84,11 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
     }
     catch (tf2::TransformException &ex)
     {
-        std::cout << "no transform to fixed frame" << std::endl;
+        ROS_WARN_DELAYED_THROTTLE(2.0, "no transform to fixed frame");
         return;
     }
 
-    processAsPointCloud(rgb_cvimg->image, depth_cvimg->image, *rgb_camera_info, T_global_camera);
+    //processAsPointCloud(rgb_cvimg->image, depth_cvimg->image, *rgb_camera_info, T_global_camera);
 
     ::CameraInfo pose = cameraPoseFromROS(rgb_camera_info, T_global_camera);
 

@@ -8,7 +8,8 @@ set(CMAKE_BUILD_TYPE Release)
 #set(ROS_BUILD_TYPE Debug)
 
 #FIND_PACKAGE(Qt4 REQUIRED)
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 3 REQUIRED)
+include_directories(${OpenCV_INCLUDE_DIRS})
 #find_package(TBB)
 
 #if(NOT TBB_FOUND)

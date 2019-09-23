@@ -26,7 +26,7 @@
 #include <fusion/geometryfusion_mipmap_cpu.hpp>
 
 #include "onlinefusionviewer.hpp"
-#include <qapplication.h>
+#include <QtWidgets/qapplication.h>
 
 #include <tclap/CmdLine.h>
 #include <fusion/mesh.hpp>

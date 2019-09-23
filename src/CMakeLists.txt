@@ -9,21 +9,22 @@ add_subdirectory(fusion)
 #add_subdirectory(filesystem) 
 
 
-include_directories("/usr/include/qt4/QtXml")
-include_directories("/usr/include/qt4")
-include_directories("/usr/include/qt4/Qt")
-include_directories("/usr/include/qt4/QtCore")
-include_directories("/usr/include/qt4/QtXml")
-include_directories("/usr/include/qt4/QtGui")
-include_directories("/usr/include/qt4/QtOpenGL")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/QtXml")
+include_directories("/usr/include/x86_64-linux-gnu/qt5")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/Qt")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/QtCore")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/QtXml")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/QtGui")
+include_directories("/usr/include/x86_64-linux-gnu/qt5/QtOpenGL")
 ADD_DEFINITIONS(${QT_DEFINITIONS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-if(EXISTS "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer.so")
+if(EXISTS "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer.so.2")
 message(STATUS "Found qglviewer2, linking QGLViewer")
-set(QGLVIEWER QGLViewer)
+set(QGLVIEWER "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer.so.2")
 else()
 message(STATUS "Did not find qglviewer2, linking qglviewer-qt4")
-set(QGLVIEWER QGLViewer-qt4)
+#set(QGLVIEWER QGLViewer-qt4)
 endif()
 
 
@@ -52,8 +53,8 @@ find_package(catkin COMPONENTS
 )
 include_directories(${catkin_INCLUDE_DIRS})
 
-FIND_PACKAGE(Qt4 REQUIRED)
-QT4_WRAP_CPP(onlinefusion_HEADERS_MOC onlinefusionviewer.hpp)
+FIND_PACKAGE(Qt5 COMPONENTS Xml Core Xml Gui OpenGL Widgets)
+QT5_WRAP_CPP(onlinefusion_HEADERS_MOC onlinefusionviewer.hpp)
 
 add_executable(onlinefusion
     rosbag_loader.cpp
@@ -71,7 +72,7 @@ target_link_libraries(onlinefusion
     auxiliary
     ${OpenCV_LIBS}
     ${QGLVIEWER}
-    QtCore QtGui QtOpenGL
+    Qt5Core Qt5Gui Qt5OpenGL Qt5Widgets
     GL GLU glut GLEW
     boost_thread
     boost_system

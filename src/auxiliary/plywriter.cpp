@@ -168,7 +168,7 @@ bool writePLYBinary(const std::string& filename,const cv::Mat& disparityImage,cv
     int noVertices=0;
     int noTriangles=0;
 
-    cv::Mat _posImage(disparityImage.rows,disparityImage.cols,cv::DataType<cv::Vec3f>::type);
+    cv::Mat _posImage(disparityImage.rows,disparityImage.cols,CV_32FC3);
     //Reproject image point
     if(type_to_string(disparityImage)!="short" && type_to_string(disparityImage)!="float")
     {
@@ -376,7 +376,7 @@ bool writePLY(const std::string& filename,const cv::Mat& disparityImage,cv::Mat 
     int noVertices=0;
     int noTriangles=0;
 
-    cv::Mat _posImage(disparityImage.rows,disparityImage.cols,cv::DataType<cv::Vec3f>::type);
+    cv::Mat _posImage(disparityImage.rows,disparityImage.cols,CV_32FC3);
     //Reproject image point
     if(type_to_string(disparityImage)!="short" && type_to_string(disparityImage)!="float")
     {

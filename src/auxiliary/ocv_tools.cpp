@@ -26,15 +26,11 @@ std::string type_to_string(cv::Mat m)
     {
         return "double";
     }
-    if(m.type() == cv::DataType<uint>::type)
-    {
-        return "uint";
-    }
     if(m.type() == cv::DataType<int>::type)
     {
         return "int";
     }
-    if(m.type() == cv::DataType<cv::Vec3f>::type)
+    if(m.type() == CV_32FC3)
     {
         return "float3";
     }

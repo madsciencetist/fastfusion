@@ -9,9 +9,9 @@
 #include "rosbag_loader.h"
 #include <QGLViewer/manipulatedFrame.h>
 #include <math.h>
-#include <QMenu>
-#include <QKeyEvent>
-#include <QMouseEvent>
+#include <QtWidgets/QMenu>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QMouseEvent>
 
 #include <stdio.h>
 #include <GL/glx.h>

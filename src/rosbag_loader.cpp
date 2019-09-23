@@ -53,8 +53,9 @@ typedef sensor_msgs::Image DepthMsgT;
 
 void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
                        const DepthMsgT::ConstPtr &depth_msg,
-                       const sensor_msgs::CameraInfoConstPtr &rgb_camera_info,
-                       const sensor_msgs::CameraInfoConstPtr &depth_camera_info,
+                       const sensor_msgs::CameraInfo::ConstPtr &rgb_camera_info,
+                       const sensor_msgs::CameraInfo::ConstPtr &depth_camera_info,
+                       const geometry_msgs::TransformStamped::ConstPtr &dummy,
                        tf2_ros::Buffer* tf_buffer,
                        FusionParameter* par,
                        volatile bool *newMesh)
@@ -104,8 +105,8 @@ void loadBag(const std::string &filename,
 {
     // TODO: make CLI args
     std::string rgb_ns = "eo_camera/forward";
-    std::string depth_ns = "depth_camera/forward";
-    std::string rgb_topic = rgb_ns + "/image_rect";
+    std::string depth_ns = "depth_camera/forward_down";
+    std::string rgb_topic = rgb_ns + "/image_raw/compressed";
     std::string depth_topic = depth_ns + "/image_rect";
     std::string rgb_camera_info_topic = rgb_ns + "/camera_info";
     std::string depth_camera_info_topic = depth_ns + "/camera_info";
@@ -155,15 +156,17 @@ void loadBag(const std::string &filename,
     message_filters::PassThrough<RgbMsgT> rgb_msg_sub;
     message_filters::PassThrough<DepthMsgT> depth_msg_sub;
     message_filters::PassThrough<sensor_msgs::CameraInfo> rgb_camera_info_sub, depth_camera_info_sub;
-
-    // Block pipeline on tf availability
-    tf2_ros::MessageFilter<sensor_msgs::CameraInfo> tf_filtered_rgb_info(rgb_camera_info_sub, tf_buffer, "p1/base_link", 30, NULL);
+    message_filters::PassThrough<geometry_msgs::TransformStamped> tf_is_ready_sub;
 
     // Synchronize RGB, depth & camera_infos
-    typedef message_filters::sync_policies::ApproximateTime<RgbMsgT, DepthMsgT, sensor_msgs::CameraInfo, sensor_msgs::CameraInfo> SyncPolicy;
+    typedef message_filters::sync_policies::ApproximateTime<RgbMsgT,
+                                                            DepthMsgT,
+                                                            sensor_msgs::CameraInfo,
+                                                            sensor_msgs::CameraInfo,
+                                                            geometry_msgs::TransformStamped> SyncPolicy;
     message_filters::Synchronizer<SyncPolicy>
-        sync(SyncPolicy(30), rgb_msg_sub, depth_msg_sub, tf_filtered_rgb_info, depth_camera_info_sub);
-    sync.registerCallback(boost::bind(&imageSyncCallback, _1, _2, _3, _4, &tf_buffer, &par, newMesh));
+        sync(SyncPolicy(30), rgb_msg_sub, depth_msg_sub, rgb_camera_info_sub, depth_camera_info_sub, tf_is_ready_sub);
+    sync.registerCallback(boost::bind(&imageSyncCallback, _1, _2, _3, _4, _5, &tf_buffer, &par, newMesh));
 
     BOOST_FOREACH (rosbag::MessageInstance const m, view)
     {
@@ -230,6 +233,12 @@ void loadBag(const std::string &filename,
                 transform.header = local_pose_msg->header;
                 transform.child_frame_id = "p1/base_link";
                 tf_buffer.setTransform(transform, "", false);
+
+                // sync this msg so that when the synchronized callback triggers,
+                // the transform will be available
+                geometry_msgs::TransformStamped::Ptr tf_is_ready_msg = boost::make_shared<geometry_msgs::TransformStamped>();
+                tf_is_ready_msg->header.stamp = local_pose_msg->header.stamp - ros::Duration(0.05);
+                tf_is_ready_sub.add(tf_is_ready_msg);
             }
         }
     }

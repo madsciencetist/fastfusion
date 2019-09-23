@@ -626,7 +626,7 @@ void OnlineFusionViewerManipulated::draw()
 
 	if (_showCameraFrustum && _currentFrame >= _firstFrame && _currentFrame <= _nextStopFrame)
 	{
-		throw "need _poses to show camera frustrum";
+		throw std::invalid_argument("need _poses to show camera frustrum");
 		// drawCameraFrustum(_poses[_currentTrajectory][_currentFrame],
 		// 				  _showDepthImage ? _depthNames[_currentTrajectory][_currentFrame] : "");
 	}
@@ -1071,7 +1071,7 @@ void OnlineFusionViewerManipulated::updateSlot()
 	}
 	else
 	{
-		printf("non-threaded fusion not supported\n");
+		throw std::invalid_argument("non-threaded fusion not supported");
 	}
 //	fprintf(stderr,"\nUpdate Slot done, updating GL");
 	updateGL();

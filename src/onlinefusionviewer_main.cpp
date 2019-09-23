@@ -162,10 +162,8 @@ int main(int argc, char *argv[])
 
 	float imageDepthScale = DEPTHSCALE;
 
-	std::string intrinsics = "";
-
 	bool threadMeshing = true;
-	bool threadFusion = false;
+	bool threadFusion = true;
 	bool threadImageReading = false;
 	bool performIncrementalMeshing = true;
 
@@ -189,9 +187,7 @@ int main(int argc, char *argv[])
 	TCLAP::ValueArg<float> scaleArg("", "scale", "Size of the Voxel", false, scale, "float");
 	TCLAP::ValueArg<float> thresholdArg("", "threshold", "Threshold", false, threshold, "float");
 	TCLAP::ValueArg<float> imageDepthScaleArg("", "imagescale", "Image Depth Scale", false, imageDepthScale, "float");
-	TCLAP::ValueArg<std::string> intrinsicsArg("", "intrinsics", "File with Camera Matrix", false, intrinsics, "string");
-
-	TCLAP::UnlabeledMultiArg<std::string> associationfilenamesArg("filenames", "The File Names", false, "string");
+	TCLAP::UnlabeledMultiArg<std::string> bagsArg("filenames", "The File Names", false, "string");
 
 	cmdLine.add(loadMeshArg);
 	cmdLine.add(threadMeshingArg);
@@ -209,9 +205,8 @@ int main(int argc, char *argv[])
 	cmdLine.add(scaleArg);
 	cmdLine.add(thresholdArg);
 	cmdLine.add(imageDepthScaleArg);
-	cmdLine.add(intrinsicsArg);
 
-	cmdLine.add(associationfilenamesArg);
+	cmdLine.add(bagsArg);
 	cmdLine.parse(argc, argv);
 
 	meshname = loadMeshArg.getValue();
@@ -232,16 +227,15 @@ int main(int argc, char *argv[])
 	scale = scaleArg.getValue();
 	threshold = thresholdArg.getValue();
 	imageDepthScale = imageDepthScaleArg.getValue();
-	intrinsics = intrinsicsArg.getValue();
 
 	if (threadMeshing)
-		fprintf(stderr, "\nMeshing will run in a separate Thread");
+		fprintf(stderr, "\nMeshing will run in a separate Thread\n");
 	else
-		fprintf(stderr, "\nMeshing will NOT run in a separate Thread");
+		fprintf(stderr, "\nMeshing will NOT run in a separate Thread\n");
 	if (threadFusion)
-		fprintf(stderr, "\nFusion will run in a separate Thread");
+		fprintf(stderr, "\nFusion will run in a separate Thread\n");
 	if (threadImageReading)
-		fprintf(stderr, "\nImage Reading will run in a separate Thread");
+		fprintf(stderr, "\nImage Reading will run in a separate Thread\n");
 
 	CameraInfo startpos;
 
@@ -249,28 +243,12 @@ int main(int argc, char *argv[])
 
 	std::string tempfileprefix = "debug/";
 
-	std::vector<std::string> associationfilenames = associationfilenamesArg.getValue();
-	std::vector<std::string> prefices;
+	std::vector<std::string> bags = bagsArg.getValue();
 
-	if (!associationfilenames.size())
+	if (!bags.size())
 	{
-		associationfilenames.push_back(defaultname);
+		throw std::invalid_argument("Error: no rosbag provided");
 	}
-
-	for (unsigned int i = 0; i < associationfilenames.size(); i++)
-	{
-		prefices.push_back(associationfilenames[i].substr(0, associationfilenames[i].find_last_of('/') + 1));
-	}
-
-//	std::vector<Sophus::SE3> posesSophus;
-	std::vector<std::pair<Eigen::Matrix3d, Eigen::Vector3d> > poses_from_assfile;
-	std::vector<std::vector<std::string> > depthNames;
-	
-
-	if (startimage >= depthNames.front().size())
-		startimage = depthNames.front().size() - 1;
-	if (endimage >= depthNames.back().size())
-		endimage = depthNames.back().size() - 1;
 
 //	fprintf(stderr,"\nCreating Mipmapping GPU Octree");
 //	Fusion_AoS *fusion = new FusionMipMap(0,0,0,DEFAULT_SCALE,DISTANCETHRESHOLD,0,volumeColor);
@@ -292,7 +270,7 @@ int main(int argc, char *argv[])
 	fprintf(stderr, "\nSetting Viewer Parameters");
 	viewer._fusion = fusion;
 	viewer.setWindowTitle("Fusion Volume");
-	viewer._depthNames = depthNames;
+	viewer._bags = bags;
 	viewer._threadFusion = threadFusion;
 	viewer._threadImageReading = threadImageReading;
 	viewer.show();

@@ -43,6 +43,7 @@ public:
   FusionMipMapCPU* _fusion;
   float _imageDepthScale;
   float _maxCamDistance;
+  float _minDepth;
   long int _currentFrame;
   long int _currentTrajectory;
   long int _firstFrame;

@@ -1029,6 +1029,7 @@ void OnlineFusionViewerManipulated::updateSlot()
 
 			_fusionThread = new boost::thread(loadBag,
 												_bags[_currentTrajectory],
+												_minDepth,
 												FusionParameter(_fusion, _imageDepthScale, _maxCamDistance, _threadImageReading, _nextStopFrame),
 												&_newMesh,
 												&_fusionActive,

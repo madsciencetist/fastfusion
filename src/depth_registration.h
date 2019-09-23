@@ -10,6 +10,7 @@ namespace depth_image_proc
                                 const sensor_msgs::CameraInfoConstPtr &rgb_info_msg,
                                 const std::string output_encoding,
                                 const std::string &fixed_frame,
-                                const tf2_ros::Buffer &tf_buffer);
+                                const tf2_ros::Buffer &tf_buffer,
+                                float min_depth);
 
 } // end namespace depth_image_proc

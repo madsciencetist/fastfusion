@@ -57,6 +57,7 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
                        const sensor_msgs::CameraInfo::ConstPtr &rgb_camera_info,
                        const sensor_msgs::CameraInfo::ConstPtr &depth_camera_info,
                        const geometry_msgs::TransformStamped::ConstPtr &dummy,
+                       float min_depth,
                        tf2_ros::Buffer* tf_buffer,
                        FusionParameter* par,
                        volatile bool *newMesh)
@@ -68,7 +69,8 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
                                                                        rgb_camera_info,
                                                                        sensor_msgs::image_encodings::TYPE_16UC1, // processAsPointCloud and addMap require
                                                                        fixed_frame,
-                                                                       *tf_buffer);
+                                                                       *tf_buffer,
+                                                                       min_depth);
 
     cv_bridge::CvImagePtr rgb_cvimg = cv_bridge::toCvCopy(rgb_msg, "rgb8");
     cv_bridge::CvImagePtr depth_cvimg = cv_bridge::toCvCopy(registered_depth);
@@ -100,6 +102,7 @@ void imageSyncCallback(const RgbMsgT::ConstPtr &rgb_msg,
 
 // Load bag
 void loadBag(const std::string &filename,
+            float min_depth,
             FusionParameter par,
             volatile bool *newMesh,
             volatile bool *fusionActive,
@@ -169,7 +172,7 @@ void loadBag(const std::string &filename,
                                                             geometry_msgs::TransformStamped> SyncPolicy;
     message_filters::Synchronizer<SyncPolicy>
         sync(SyncPolicy(30), rgb_msg_sub, depth_msg_sub, rgb_camera_info_sub, depth_camera_info_sub, tf_is_ready_sub);
-    sync.registerCallback(boost::bind(&imageSyncCallback, _1, _2, _3, _4, _5, &tf_buffer, &par, newMesh));
+    sync.registerCallback(boost::bind(&imageSyncCallback, _1, _2, _3, _4, _5, min_depth, &tf_buffer, &par, newMesh));
 
     BOOST_FOREACH (rosbag::MessageInstance const m, view)
     {

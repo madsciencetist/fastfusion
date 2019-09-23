@@ -8,6 +8,8 @@
 namespace depth_image_proc
 {
 
+static const float MIN_DEPTH = 0.3;
+
 //using namespace message_filters::sync_policies;
 namespace enc = sensor_msgs::image_encodings;
 
@@ -16,7 +18,8 @@ void convert(const sensor_msgs::ImageConstPtr &depth_msg,
              const sensor_msgs::ImagePtr &registered_msg,
              const Eigen::Affine3d &depth_to_rgb,
              const image_geometry::PinholeCameraModel &depth_model,
-             const image_geometry::PinholeCameraModel &rgb_model)
+             const image_geometry::PinholeCameraModel &rgb_model,
+             float min_depth)
 {
   // Allocate memory for registered depth image
   registered_msg->step = registered_msg->width * sizeof(Tout);
@@ -48,6 +51,9 @@ void convert(const sensor_msgs::ImageConstPtr &depth_msg,
         continue;
 
       double depth = DepthTraits<Tin>::toMeters(raw_depth);
+
+      if (depth < min_depth)
+        continue;
 
       /// @todo Combine all operations into one matrix multiply on (u,v,d)
       // Reproject (u,v,Z) to (X,Y,Z,1) in depth camera frame
@@ -83,7 +89,8 @@ sensor_msgs::ImagePtr imageCb(const sensor_msgs::ImageConstPtr &depth_image_msg,
                               const sensor_msgs::CameraInfoConstPtr &rgb_info_msg,
                               const std::string output_encoding,
                               const std::string &fixed_frame,
-                              const tf2_ros::Buffer &tf_buffer)
+                              const tf2_ros::Buffer &tf_buffer,
+                              float min_depth)
 {
   image_geometry::PinholeCameraModel depth_model, rgb_model;
   depth_model.fromCameraInfo(depth_info_msg);
@@ -126,13 +133,13 @@ sensor_msgs::ImagePtr imageCb(const sensor_msgs::ImageConstPtr &depth_image_msg,
   // step and data set in convert(), depend on depth data type
 
   if (depth_image_msg->encoding == enc::TYPE_16UC1 && output_encoding == enc::TYPE_16UC1)
-    convert<uint16_t, uint16_t>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model);
+    convert<uint16_t, uint16_t>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model, min_depth);
   else if (depth_image_msg->encoding == enc::TYPE_16UC1 && output_encoding == enc::TYPE_32FC1)
-    convert<uint16_t, float>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model);
+    convert<uint16_t, float>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model, min_depth);
   else if (depth_image_msg->encoding == enc::TYPE_32FC1 && output_encoding == enc::TYPE_16UC1)
-    convert<float, uint16_t>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model);
+    convert<float, uint16_t>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model, min_depth);
   else if (depth_image_msg->encoding == enc::TYPE_32FC1 && output_encoding == enc::TYPE_32FC1)
-    convert<float, float>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model);
+    convert<float, float>(depth_image_msg, registered_msg, depth_to_rgb, depth_model, rgb_model, min_depth);
   else
   {
     printf("Depth image conversion from [%s] to [%s] not supported\n", depth_image_msg->encoding.c_str(), output_encoding.c_str());

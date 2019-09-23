@@ -157,10 +157,11 @@ int main(int argc, char *argv[])
 	unsigned int imageStep = 1;
 
 	float maxCamDistance = MAXCAMDISTANCE;
+	float minDepth = 0.3f;
 	float scale = DEFAULT_SCALE;
 	float threshold = DEFAULT_SCALE;
 
-  float imageDepthScale = 1000; // DEPTHSCALE;
+	float imageDepthScale = 1000; // DEPTHSCALE;
 
 	bool threadMeshing = true;
 	bool threadFusion = true;
@@ -184,6 +185,7 @@ int main(int argc, char *argv[])
 	TCLAP::ValueArg<int> imageStepArg("k", "imagestep", "Use every kth step", false, imageStep, "int");
 	TCLAP::ValueArg<int> depthConsistencyChecksArg("", "consistency-checks", "Number of Depth Consistency Checks", false, depthConstistencyChecks, "int");
 	TCLAP::ValueArg<float> maxCamDistanceArg("", "max-camera-distance", "Maximum Camera Distance to Surface", false, maxCamDistance, "float");
+	TCLAP::ValueArg<float> minDepthArg("", "min-depth", "Minimum depth measurement considered valid", false, minDepth, "float");
 	TCLAP::ValueArg<float> scaleArg("", "scale", "Size of the Voxel", false, scale, "float");
 	TCLAP::ValueArg<float> thresholdArg("", "threshold", "Threshold", false, threshold, "float");
 	TCLAP::ValueArg<float> imageDepthScaleArg("", "imagescale", "Image Depth Scale", false, imageDepthScale, "float");
@@ -276,6 +278,7 @@ int main(int argc, char *argv[])
 	viewer.show();
 	viewer._imageDepthScale = imageDepthScale;
 	viewer._maxCamDistance = maxCamDistance;
+	viewer._minDepth = minDepth;
 	viewer._firstFrame = (long int)startimage;
 	viewer._currentFrame = (long int)startimage - 1;
 	fprintf(stderr, "\nSet Viewer Frame to %li", (long int)viewer._currentFrame);

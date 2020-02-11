@@ -115,7 +115,8 @@ void loadBag(const std::string &filename,
     std::string depth_topic = depth_ns + "/image_rect";
     std::string rgb_camera_info_topic = rgb_ns + "/camera_info";
     std::string depth_camera_info_topic = depth_ns + "/camera_info";
-    std::string local_pose_topic = "global_map_2d/local_pose";
+    std::string local_pose_topic1 = "global_map_2d/local_pose";
+    std::string local_pose_topic2 = "aviate/topological_map/local_pose";
     std::string tf_topic = "/tf";
     std::string static_tf_topic = "/tf_static";
 
@@ -154,7 +155,8 @@ void loadBag(const std::string &filename,
     topics.push_back(depth_topic);
     topics.push_back(rgb_camera_info_topic);
     topics.push_back(depth_camera_info_topic);
-    topics.push_back(local_pose_topic);
+    topics.push_back(local_pose_topic1);
+    topics.push_back(local_pose_topic2);
     rosbag::View view(bag, rosbag::TopicQuery(topics));
 
     // Set up fake subscribers to capture images. We'll add msgs to them manually.
@@ -223,7 +225,7 @@ void loadBag(const std::string &filename,
         }
 
         // Pose
-        if (m.getTopic() == local_pose_topic)
+        if (m.getTopic() == local_pose_topic1 || m.getTopic() == local_pose_topic2)
         {
             geometry_msgs::PoseStamped::ConstPtr local_pose_msg = m.instantiate<geometry_msgs::PoseStamped>();
             if (local_pose_msg != NULL)

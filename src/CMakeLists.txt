@@ -19,12 +19,12 @@ include_directories("/usr/include/x86_64-linux-gnu/qt5/QtOpenGL")
 ADD_DEFINITIONS(${QT_DEFINITIONS})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 
-if(EXISTS "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer.so.2")
+if(EXISTS "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer-qt5.so.2")
 message(STATUS "Found qglviewer2, linking QGLViewer")
-set(QGLVIEWER "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer.so.2")
+set(QGLVIEWER "${ROOT}/usr/lib/x86_64-linux-gnu/libQGLViewer-qt5.so.2")
 else()
 message(STATUS "Did not find qglviewer2, linking qglviewer-qt4")
-#set(QGLVIEWER QGLViewer-qt4)
+set(QGLVIEWER QGLViewer-qt4)
 endif()
 
 

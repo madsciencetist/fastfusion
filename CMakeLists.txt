@@ -18,17 +18,6 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 #endif(NOT TBB_FOUND)
 
 
-if (CMAKE_COMPILER_IS_GNUCC)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
-                    OUTPUT_VARIABLE GCC_VERSION)
-    string(REGEX MATCHALL "[0-9]+" GCC_VERSION_COMPONENTS ${GCC_VERSION})
-    list(GET GCC_VERSION_COMPONENTS 0 GCC_MAJOR)
-    list(GET GCC_VERSION_COMPONENTS 1 GCC_MINOR)
-
-    message(STATUS "GCC Major Version is " ${GCC_MAJOR})
-    message(STATUS "GCC Major Version is " ${GCC_MINOR})
-endif()
-
 set(CMAKE_C_FLAGS
 -frounding-math 
 #-Wall

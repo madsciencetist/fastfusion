@@ -33,7 +33,9 @@ http://youtu.be/7s9JePSln-M
 Installation
 ============
 
-    $ git clone https://github.com/tum-vision/fastfusion.git`
+    $ sudo apt install qtbase5-dev libglew-dev freeglut3-dev libqglviewer-dev-qt5 libqglviewer-headers ros-melodic-depth-image-proc ros-melodic-image-geometry ros-melodic-pcl-ros
+
+    $ git clone https://github.com/tum-vision/fastfusion.git -b rosbag
 
     $ cd fastfusion
   
@@ -41,60 +43,10 @@ Installation
 
     $ make
 
-Preparation of the data
-======================
-
-The software takes a text file as input which contains per file
-- the camera pose
-- the depth image filename
-- the color image filename
-
-You can either generate such a file yourself (e.g., by running
-Christan Kerl's DVO SLAM:
-
-http://vision.in.tum.de/data/software/dvo
-
-available as open source on our homepage) or you can download 
-sequences from the TUM RGB-D benchmark:
-
-http://vision.in.tum.de/data/datasets/rgbd-dataset/
-
-For simplicity, we take a pre-recorded sequence from the TUM
-RGB-D benchmark.
-
-    $ mkdir ~/data
-
-    $ cd ~/data
-
-    $ wget http://vision.in.tum.de/rgbd/dataset/freiburg3/rgbd_dataset_freiburg3_long_office_household.tgz
-
-    $ tar xvzf rgbd_dataset_freiburg3_long_office_household.tgz
-
-Now we need to generate the text file. For this, we use the associate.py tool from
-the RGB-D benchmark website. We need to run it twice, as we join the
-camera poses, the depth image list and the color image list into a single file:
-
-    $ cd ~/fastfusion/
-
-    $ ./associate.py ~/data/rgbd_dataset_freiburg3_long_office_household/groundtruth.txt ~/data/rgbd_dataset_freiburg3_long_office_household/depth.txt > tmp.txt
-
-    $ ./associate.py tmp.txt ~/data/rgbd_dataset_freiburg3_long_office_household/rgb.txt > ~/data/rgbd_dataset_freiburg3_long_office_household/associate.txt
-
-The resulting text file should look as follows:
-
-    $ head ~/data/rgbd_dataset_freiburg3_long_office_household/associate.txt
-
-```
-1341847980.790000 -0.6832 2.6909 1.7373 0.0003 0.8617 -0.5072 -0.0145 1341847980.786879 depth/1341847980.786879.png 1341847980.786856 rgb/1341847980.786856.png
-1341847980.820100 -0.6821 2.6914 1.7371 0.0003 0.8609 -0.5085 -0.0151 1341847980.822989 depth/1341847980.822989.png 1341847980.822978 rgb/1341847980.822978.png
-1341847980.850000 -0.6811 2.6918 1.7371 0.0001 0.8610 -0.5084 -0.0159 1341847980.854690 depth/1341847980.854690.png 1341847980.854676 rgb/1341847980.854676.png
-[..]
-```
-
 Running the code
 ================
 
-    $ ./bin/onlinefusion ~/data/rgbd_dataset_freiburg3_long_office_household/associate.txt --thread-fusion
+    $ ./bin/onlinefusion rosbag.bag
 
 After some debugging output on the console, a window with a 3D viewer should open. To start the 
 reconstruction process, press "S". 
@@ -107,9 +59,10 @@ Further options
 ===============
 
 ```
-   ./bin/onlinefusion  [--intrinsics <string>] [--imagescale <float>]
+   ./bin/onlinefusion  [--imagescale <float>]
                        [--threshold <float>] [--scale <float>]
                        [--max-camera-distance <float>]
+                       [--min-depth <float>]
                        [--consistency-checks <int>] [-k <int>] [-e <int>]
                        [-s <int>] [--incremental-meshing] [-c] [-b] [-v]
                        [--thread-image] [--thread-fusion]
@@ -118,9 +71,6 @@ Further options
 
 
 Where: 
-
-   --intrinsics <string>
-     File with Camera Matrix
 
    --imagescale <float>
      Image Depth Scale
@@ -133,6 +83,9 @@ Where:
 
    --max-camera-distance <float>
      Maximum Camera Distance to Surface
+
+   --min-depth <float>
+     Minimum depth measurement considered valid
 
    --consistency-checks <int>
      Number of Depth Consistency Checks
@@ -180,7 +133,7 @@ Where:
      Displays usage information and exits.
 
    <string>  (accepted multiple times)
-     The File Names
+     The rosbag filenames
 ```
 ![alt tag](http://vision.in.tum.de/_media/data/software/screenshot_fastfusion.png)
 

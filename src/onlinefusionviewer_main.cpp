@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
 	TCLAP::ValueArg<float> scaleArg("", "scale", "Size of the Voxel", false, scale, "float");
 	TCLAP::ValueArg<float> thresholdArg("", "threshold", "Threshold", false, threshold, "float");
 	TCLAP::ValueArg<float> imageDepthScaleArg("", "imagescale", "Image Depth Scale", false, imageDepthScale, "float");
-	TCLAP::UnlabeledMultiArg<std::string> bagsArg("filenames", "The File Names", false, "string");
+	TCLAP::UnlabeledMultiArg<std::string> bagsArg("filenames", "The rosbag filenames", false, "string");
 
 	cmdLine.add(loadMeshArg);
 	cmdLine.add(threadMeshingArg);

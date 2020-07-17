@@ -35,7 +35,7 @@ Installation
 
     $ sudo apt install qtbase5-dev libglew-dev freeglut3-dev libqglviewer-dev-qt5 libqglviewer-headers ros-melodic-depth-image-proc ros-melodic-image-geometry ros-melodic-pcl-ros
 
-    $ git clone https://github.com/tum-vision/fastfusion.git -b rosbag
+    $ git clone https://github.com/madsciencetist/fastfusion.git -b rosbag
 
     $ cd fastfusion
   
